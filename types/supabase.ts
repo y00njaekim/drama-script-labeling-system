@@ -11,18 +11,21 @@ export type Database = {
     Tables: {
       labels: {
         Row: {
+          created_at: string
           id: number
           para_text: string | null
           user_id: number | null
           video_id: number | null
         }
         Insert: {
+          created_at?: string
           id?: number
           para_text?: string | null
           user_id?: number | null
           video_id?: number | null
         }
         Update: {
+          created_at?: string
           id?: number
           para_text?: string | null
           user_id?: number | null

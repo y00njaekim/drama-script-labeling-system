@@ -8,7 +8,8 @@ export default async function Page() {
   const uid: number = parseInt(headers().get('x-uid') as string );
   const videos = await fetchVideosInServer(pnum) as VideoPoolWithVideoAndLabel[] | null;
 
-  if(!videos) return <div>데이터가 없습니다.</div>;
+  // TODO(!): 에러페이지
+  if(!videos) return <div>데이터가 없습니다</div>; 
  
   return <div>
     <LabelComponent uid={uid} pnum={pnum} videos={videos} />

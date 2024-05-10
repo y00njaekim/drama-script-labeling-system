@@ -12,7 +12,7 @@ export async function labelMiddleware(request: NextRequest) {
         secret: new TextEncoder().encode(process.env.SECRET_KEY),
       }
       const decoded = await jwtVerify(token.value, jwtConfig.secret)
-      const pnum = decoded.payload.pnum as string;
+      const pnum = decoded.payload.pnum_match as string;
       const uid = decoded.payload.uid as string;
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set('x-uid', uid);

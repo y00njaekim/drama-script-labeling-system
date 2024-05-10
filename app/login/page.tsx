@@ -1,7 +1,10 @@
 import { headers, cookies } from "next/headers";
-import { SubmitButton } from "./submit-button";
+import { SubmitButton } from "../../components/submit-button";
 import { APIResponse } from "@/types/types";
 import { redirect } from "next/navigation";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const signInWithEmail = async (formData: FormData) => {
   "use server";
@@ -56,35 +59,37 @@ export default function Login({
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
       <form className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-        <label className="text-md" htmlFor="email">
-          Email
-        </label>
-        <input
-          className="rounded-md px-4 py-2 bg-inherit border mb-6"
+        <Label htmlFor="email">
+          이메일
+        </Label>
+        <Input
+          className="px-4 py-2 mb-6"
           name="email"
           placeholder="you@example.com"
           required
-        />
-        <label className="text-md" htmlFor="pnum">
-          Participant Number
-        </label>
-        <input
-          className="rounded-md px-4 py-2 bg-inherit border mb-6"
+          />
+        <Label htmlFor="pnum">
+          참여자 번호
+        </Label>
+        <Input
+          className="px-4 py-2 mb-6"
           name="pnum"
           placeholder="Given Participant Number"
           required
-        />
+          />
         {searchParams?.message && (
-          <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
+          <Button asChild variant="destructive"> 
+            <span>
             {searchParams.message}
-          </p>
+            </span>
+          </Button>
         )}
         <SubmitButton
           formAction={signInWithEmail}
           className="bg-green-700 rounded-md px-4 py-2 text-foreground mb-2"
-          pendingText="Signing In With Email..."
+          pendingText="이메일로 로그인중..."
         >
-          Sign In
+          로그인
         </SubmitButton>
       </form>
     </div>

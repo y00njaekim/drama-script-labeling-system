@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
   if (user && user.length > 0) {
     const uid = user[0].id;
-    const token = jwt.sign({ uid, email, pnum }, secretKey, { expiresIn: '3h' });
+    const token = jwt.sign({ uid, email, pnum_match }, secretKey, { expiresIn: '3h' });
     const response = NextResponse.json({ message: 'Authentication successful' }, { status: 200 });
 
     response.cookies.set({
