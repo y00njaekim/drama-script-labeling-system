@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   }
   
   const pnum_match = pnum_matches[1];
-  const secretKey = process.env.SECRET_KEY;
+  const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
 
   if (!secretKey) {
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });

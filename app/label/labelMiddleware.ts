@@ -9,7 +9,7 @@ export async function labelMiddleware(request: NextRequest) {
   if (token) {
     try {
       const jwtConfig = {
-        secret: new TextEncoder().encode(process.env.SECRET_KEY),
+        secret: new TextEncoder().encode(process.env.NEXT_PUBLIC_SECRET_KEY),
       }
       const decoded = await jwtVerify(token.value, jwtConfig.secret)
       const pnum = decoded.payload.pnum_match as string;
