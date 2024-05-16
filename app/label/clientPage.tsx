@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,6 @@ import { VideoPoolWithVideoAndLabel } from '@/types/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Toggle } from '@/components/ui/toggle';
-import { ReloadIcon } from '@radix-ui/react-icons';
 import RenderGuideDiv from '@/app/label/guide';
 
 const getLatestLabel = (labels: VideoPoolWithVideoAndLabel['labels']) => {
@@ -22,10 +22,8 @@ const getLatestLabel = (labels: VideoPoolWithVideoAndLabel['labels']) => {
   }, labels[0]);
 };
 
-
 export default function LabelComponent({
   uid,
-  pnum,
   videos,
 }: {
   uid: number;

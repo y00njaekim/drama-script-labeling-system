@@ -1,3 +1,4 @@
+import React from 'react';
 import { headers, cookies } from 'next/headers';
 import { SubmitButton } from '../../components/submit-button';
 import { APIResponse } from '@/types/types';
@@ -38,7 +39,7 @@ const signInWithEmail = async (formData: FormData) => {
       cookies().set({
         name: cookieName,
         value: cookieValue,
-        httpOnly: cookieOptions.hasOwnProperty('HttpOnly'),
+        httpOnly: Object.prototype.hasOwnProperty.call(cookieOptions, 'HttpOnly'),
         secure: process.env.NODE_ENV === 'production',
         maxAge: parseInt(cookieOptions['Max-Age']),
         path: cookieOptions['Path'],

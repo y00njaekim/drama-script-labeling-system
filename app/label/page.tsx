@@ -1,3 +1,4 @@
+import React from 'react';
 import { fetchVideosInServer } from '@/lib/dataServer';
 import { VideoPoolWithVideoAndLabel } from '@/types/types';
 import { headers } from 'next/headers';
