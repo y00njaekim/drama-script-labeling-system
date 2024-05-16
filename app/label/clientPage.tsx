@@ -124,11 +124,6 @@ export default function LabelComponent({
   };
 
   const handleNext = () => {
-    if (videos.length - 1 === currentVideoIndex && labeledCountState === videos.length) {
-      router.push('/');
-      return;
-    }
-
     if (inputDirty) {
       addLabel(videos[currentVideoIndex].video.id, uid, inputLabeledText);
       if (labeledStatus[currentVideoIndex] === false) {
@@ -143,6 +138,10 @@ export default function LabelComponent({
       } else {
         videos[currentVideoIndex].labels[0].para_text = inputLabeledText;
       }
+    }
+    if (videos.length - 1 === currentVideoIndex && labeledCountState === videos.length) {
+      router.push('/');
+      return;
     }
     setCurrentVideoIndex(currentVideoIndex + 1);
   };

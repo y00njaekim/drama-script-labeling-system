@@ -9,7 +9,7 @@ export const addLabel = async (video_id: number, user_id: number, para_text: str
   if (error) {
     console.error('Error adding label:', error);
   } else {
-    console.log('Label added:', data);
+    // console.log('Label added:', data);
   }
 
   return data;
