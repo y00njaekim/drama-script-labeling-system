@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Toggle } from '@/components/ui/toggle';
 import RenderGuideDiv from '@/app/label/guide';
+import { PauseIcon, PlayIcon } from '@radix-ui/react-icons';
 
 const getLatestLabel = (labels: VideoPoolWithVideoAndLabel['labels']) => {
   return labels.reduce((latest, label) => {
@@ -40,6 +41,7 @@ export default function LabelComponent({
   const [inputDirty, setInputDirty] = useState(false); // Dirty: initialLabeledText 와 다르면 True
   const [numToMove, setNumToMove] = useState(0);
   const [isLoopToggleOn, setIsLoopToggleOn] = useState(false);
+  const [isEnded, setIsEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const loopVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -77,6 +79,7 @@ export default function LabelComponent({
     setInputDirty(false);
     setNumToMove(currentVideoIndex + 1);
     setIsLoopToggleOn(false);
+    setIsEnded(false);
   }, [currentVideoIndex]);
 
   useEffect(() => {
@@ -166,6 +169,35 @@ export default function LabelComponent({
     setIsLoopToggleOn(value);
   };
 
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const currentTime = videoRef.current.currentTime;
+      if (currentTime >= videoRef.current.duration) {
+        setIsEnded(true);
+      }
+    }
+  };
+  const handlePlay = () => {
+    if (videoRef.current && loopVideoRef.current) {
+      if (!isLoopToggleOn) {
+        videoRef.current.play();
+      } else {
+        loopVideoRef.current.play();
+      }
+    }
+  };
+
+  const handlePause = () => {
+    if (videoRef.current && loopVideoRef.current) {
+      if (!isLoopToggleOn) {
+        videoRef.current.pause();
+      } else {
+        loopVideoRef.current.pause();
+      }
+    }
+  };
+
+
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="flex w-[56rem] max-w-3xl items-center justify-between">
@@ -208,15 +240,14 @@ export default function LabelComponent({
       <div className="mt-2 w-full max-w-3xl">
         <div className="relative">
           <video
-            controls
             ref={videoRef}
+            onTimeUpdate={handleTimeUpdate}
             src={videos[currentVideoIndex].video.url as string}
             className="rounded-lg"
             preload="auto"
           />
           <video
             loop
-            controls
             ref={loopVideoRef}
             src={`${(videos[currentVideoIndex].video.url as string).replace(/\.mp4$/, '_loop.mp4')}`}
             className="rounded-lg"
@@ -235,7 +266,13 @@ export default function LabelComponent({
               {videos[currentVideoIndex].video.plain_text}
             </span>
           </Label>
-          <Toggle
+          <Button size="sm" variant="outline" onClick={handlePlay}>
+          <PlayIcon></PlayIcon>
+          </Button>
+          <Button size="sm" variant="outline" onClick={handlePause}>
+          <PauseIcon></PauseIcon>
+          </Button>
+          {isEnded && <Toggle
             aria-label="Toggle italic"
             size="sm"
             pressed={isLoopToggleOn}
@@ -245,6 +282,7 @@ export default function LabelComponent({
             {isLoopToggleOn ? '전체영상' : '부분반복'}
             {/* <ReloadIcon className="h-4 w-4" /> */}
           </Toggle>
+          }
         </div>
         <Input
           className="mb-1"
