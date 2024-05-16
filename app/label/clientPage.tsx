@@ -89,9 +89,11 @@ export default function LabelComponent({
     if (videoRef.current && loopVideoRef.current) {
       if (isLoopToggleOn) {
         videoRef.current.style.display = 'none';
+        videoRef.current.pause();
         loopVideoRef.current.style.display = 'block';
       } else {
         videoRef.current.style.display = 'block';
+        loopVideoRef.current.pause();
         loopVideoRef.current.style.display = 'none';
       }
     }
