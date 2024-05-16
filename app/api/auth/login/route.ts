@@ -1,8 +1,6 @@
-
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { fetchUserInServer } from '@/lib/dataServer';
-
 
 export async function POST(request: Request) {
   const { email, pnum } = await request.json();
@@ -11,14 +9,14 @@ export async function POST(request: Request) {
   if (!pnum_matches) {
     return NextResponse.json({ message: 'Invalid participant number' }, { status: 400 });
   }
-  
+
   const pnum_match = pnum_matches[1];
   const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
 
   if (!secretKey) {
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
-  
+
   const user = await fetchUserInServer(email, pnum_match);
 
   if (user && user.length > 0) {

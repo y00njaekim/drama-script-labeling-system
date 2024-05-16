@@ -1,15 +1,17 @@
 'use client';
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { addLabel } from "@/lib/dataClient";
-import { VideoPoolWithVideoAndLabel } from "@/types/types";
-import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { addLabel } from '@/lib/dataClient';
+import { VideoPoolWithVideoAndLabel } from '@/types/types';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { Toggle } from '@/components/ui/toggle';
+import { ReloadIcon } from '@radix-ui/react-icons';
+import RenderGuideDiv from '@/app/label/guide';
 
 const getLatestLabel = (labels: VideoPoolWithVideoAndLabel['labels']) => {
   return labels.reduce((latest, label) => {
@@ -18,12 +20,20 @@ const getLatestLabel = (labels: VideoPoolWithVideoAndLabel['labels']) => {
     }
     return latest;
   }, labels[0]);
-}
+};
 
-export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnum: number, videos: VideoPoolWithVideoAndLabel[] }) {
-  // TODO(!): Loading State + Skeleton UI, Video Loading 완료 event 감지 필요
+
+export default function LabelComponent({
+  uid,
+  pnum,
+  videos,
+}: {
+  uid: number;
+  pnum: number;
+  videos: VideoPoolWithVideoAndLabel[];
+}) {
   const router = useRouter();
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [labeledCountState, setLabeledCountState] = useState(0);
   const [labeledStatus, setLabeledStatus] = useState<boolean[]>([]);
@@ -31,6 +41,9 @@ export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnu
   const [inputLabeledText, setInputLabeledText] = useState('');
   const [inputDirty, setInputDirty] = useState(false); // Dirty: initialLabeledText 와 다르면 True
   const [numToMove, setNumToMove] = useState(0);
+  const [isLoopToggleOn, setIsLoopToggleOn] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const loopVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (videos) {
@@ -39,7 +52,7 @@ export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnu
         setCurrentVideoIndex(index);
       }
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (videos) {
@@ -51,7 +64,7 @@ export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnu
   useEffect(() => {
     const labeledCount = labeledStatus.filter((status) => status).length;
     setLabeledCountState(labeledCount);
-  }, [labeledStatus])
+  }, [labeledStatus]);
 
   useEffect(() => {
     const labels = videos[currentVideoIndex].labels;
@@ -65,17 +78,30 @@ export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnu
     }
     setInputDirty(false);
     setNumToMove(currentVideoIndex + 1);
-  }, [currentVideoIndex])
+    setIsLoopToggleOn(false);
+  }, [currentVideoIndex]);
 
   useEffect(() => {
     if (inputLabeledText !== initialLabeledText) {
       setInputDirty(true);
     }
-  }, [inputLabeledText])
+  }, [inputLabeledText]);
+
+  useEffect(() => {
+    if (videoRef.current && loopVideoRef.current) {
+      if (isLoopToggleOn) {
+        videoRef.current.style.display = 'none';
+        loopVideoRef.current.style.display = 'block';
+      } else {
+        videoRef.current.style.display = 'block';
+        loopVideoRef.current.style.display = 'none';
+      }
+    }
+  }, [isLoopToggleOn]);
 
   const handleInputLabeledTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputLabeledText(event.target.value);
-  }
+  };
 
   // SMELL: videos 상태값 클라에서 관리하고 변경... 구리긴 하다
   const handlePrev = () => {
@@ -87,17 +113,19 @@ export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnu
           newLabeledStatus[currentVideoIndex] = true;
           return newLabeledStatus;
         });
-        videos[currentVideoIndex].labels = [{ para_text: inputLabeledText, created_at: new Date().toISOString() }];
+        videos[currentVideoIndex].labels = [
+          { para_text: inputLabeledText, created_at: new Date().toISOString() },
+        ];
       } else {
         videos[currentVideoIndex].labels[0].para_text = inputLabeledText;
       }
     }
     setCurrentVideoIndex(currentVideoIndex - 1);
-  }
+  };
 
   const handleNext = () => {
     if (videos.length - 1 === currentVideoIndex && labeledCountState === videos.length) {
-      router.push('/')
+      router.push('/');
       return;
     }
 
@@ -109,33 +137,40 @@ export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnu
           newLabeledStatus[currentVideoIndex] = true;
           return newLabeledStatus;
         });
-        videos[currentVideoIndex].labels = [{ para_text: inputLabeledText, created_at: new Date().toISOString() }];
+        videos[currentVideoIndex].labels = [
+          { para_text: inputLabeledText, created_at: new Date().toISOString() },
+        ];
       } else {
         videos[currentVideoIndex].labels[0].para_text = inputLabeledText;
       }
     }
     setCurrentVideoIndex(currentVideoIndex + 1);
-  }
+  };
 
   const handleMoveTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const moveIndex = parseInt(event.target.value);
     setNumToMove(moveIndex);
-  }
+  };
 
   const handleMoveButtonClick = () => {
     if (numToMove > 0 && numToMove <= videos.length) {
       setCurrentVideoIndex(numToMove - 1);
       setIsSheetOpen(false);
     }
-  }
+  };
+
+  const handleToggle = (value: boolean) => {
+    setIsLoopToggleOn(value);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
-      <div className="flex items-center justify-between max-w-4xl w-[56rem]">
-        <div className='flex gap-2'>
-        <Badge variant="outline"><span className="text-xs font-semibold">{currentVideoIndex+1}번</span></Badge>
+      <div className="flex w-[56rem] max-w-3xl items-center justify-between">
+        <div className="flex gap-2">
+          <Badge variant="outline">
+            <span className="text-xs font-semibold">{currentVideoIndex + 1}번</span>
+          </Badge>
           <Sheet key="left" open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            {/* TODO(!) 안한 문항 보여주기 */}
             <SheetTrigger onClick={() => setIsSheetOpen(true)}>
               <Badge variant="destructive">이동</Badge>
             </SheetTrigger>
@@ -143,28 +178,87 @@ export default function LabelComponent({ uid, pnum, videos }: { uid: number, pnu
               <SheetHeader>
                 <SheetTitle>문항을 이동하시겠습니까?</SheetTitle>
                 <div className="flex w-full max-w-sm items-center space-x-2">
-                  <Input type="Number" min={1} max={580} onChange={handleMoveTextChange} value={numToMove} placeholder="이동 할 문항 번호" />
-                  <Button onClick={handleMoveButtonClick} type="submit">이동</Button>
+                  <Input
+                    type="Number"
+                    min={1}
+                    max={580}
+                    onChange={handleMoveTextChange}
+                    value={numToMove}
+                    placeholder="이동 할 문항 번호"
+                  />
+                  <Button onClick={handleMoveButtonClick} type="submit">
+                    이동
+                  </Button>
                 </div>
               </SheetHeader>
+              <div className="my-5 border-b border-gray-200"></div>
+              <RenderGuideDiv />
             </SheetContent>
           </Sheet>
         </div>
-        <Badge variant="secondary"><span className="text-xs font-semibold">{labeledCountState}/{videos.length} 완료</span></Badge>
+        <Badge variant="secondary">
+          <span className="text-xs font-semibold">
+            {labeledCountState}/{videos.length} 완료
+          </span>
+        </Badge>
       </div>
-      <div className="w-full max-w-4xl mt-2">
+      <div className="mt-2 w-full max-w-3xl">
         <div className="relative">
-          <video src={videos[currentVideoIndex].video.url as string} controls className="rounded-lg" preload="auto"/>
+          <video
+            controls
+            ref={videoRef}
+            src={videos[currentVideoIndex].video.url as string}
+            className="rounded-lg"
+            preload="auto"
+          />
+          <video
+            loop
+            controls
+            ref={loopVideoRef}
+            src={`${(videos[currentVideoIndex].video.url as string).replace(/\.mp4$/, '_loop.mp4')}`}
+            className="rounded-lg"
+            preload="auto"
+          />
         </div>
       </div>
-      <div className="max-w-4xl mt-6 w-[56rem]">
-        <Label className="mb-2 px-2 block text-lg font-medium text-gray-700" htmlFor="video-label">
-        <span className="bg-yellow-200">{videos[currentVideoIndex].video.plain_text}</span>
-        </Label>
-        <Input className="mb-4" id="video-label" value={inputLabeledText} onChange={handleInputLabeledTextChange} placeholder="위 대사에 대한 발화자의 어조를 최대한 잘 드러낼 수 있는 구두점을 추가하여 텍스트를 변형하고 표현해 주세요" />
-        <div className="flex gap-2 justify-end">
-          <Button disabled={currentVideoIndex === 0} onClick={handlePrev}>이전</Button>
-          <Button disabled={inputLabeledText === ''} onClick={handleNext} className='transition-all'>
+      <div className="mt-4 w-[56rem] max-w-3xl">
+        <div className="flex items-center gap-2 py-2">
+          <Label
+            // className="mb-2 px-2 text-lg font-medium text-gray-700 block"
+            className="px-2 text-lg font-medium text-gray-700"
+            htmlFor="video-label"
+          >
+            <span className="bg-yellow-200 text-lg">
+              {videos[currentVideoIndex].video.plain_text}
+            </span>
+          </Label>
+          <Toggle
+            aria-label="Toggle italic"
+            size="sm"
+            pressed={isLoopToggleOn}
+            onPressedChange={handleToggle}
+            variant="outline"
+          >
+            반복
+            {/* <ReloadIcon className="h-4 w-4" /> */}
+          </Toggle>
+        </div>
+        <Input
+          className="mb-4"
+          id="video-label"
+          value={inputLabeledText}
+          onChange={handleInputLabeledTextChange}
+          placeholder="위 대사에 대한 발화자의 어조를 최대한 잘 드러낼 수 있는 구두점을 추가하여 텍스트를 변형하고 표현해 주세요"
+        />
+        <div className="flex justify-end gap-2">
+          <Button disabled={currentVideoIndex === 0} onClick={handlePrev}>
+            이전
+          </Button>
+          <Button
+            disabled={inputLabeledText === ''}
+            onClick={handleNext}
+            className="transition-all"
+          >
             {videos.length - 1 !== currentVideoIndex ? <span>다음</span> : <span>종료</span>}
           </Button>
         </div>

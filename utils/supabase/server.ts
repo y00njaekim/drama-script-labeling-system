@@ -1,6 +1,5 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { cookies } from "next/headers";
-
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export const createClient = <Database = any>() => {
   const cookieStore = cookies();
@@ -16,14 +15,12 @@ export const createClient = <Database = any>() => {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (error) {
-          }
+          } catch (error) {}
         },
         remove(name: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value: "", ...options });
-          } catch (error) {
-          }
+            cookieStore.set({ name, value: '', ...options });
+          } catch (error) {}
         },
       },
     },
