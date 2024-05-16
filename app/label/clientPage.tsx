@@ -91,10 +91,14 @@ export default function LabelComponent({
         videoRef.current.style.display = 'none';
         videoRef.current.pause();
         loopVideoRef.current.style.display = 'block';
+        loopVideoRef.current.currentTime = 0;
+        loopVideoRef.current.play();
       } else {
-        videoRef.current.style.display = 'block';
         loopVideoRef.current.pause();
         loopVideoRef.current.style.display = 'none';
+        videoRef.current.style.display = 'block';
+        videoRef.current.currentTime = 0;
+        videoRef.current.play();
       }
     }
   }, [isLoopToggleOn]);
@@ -238,17 +242,20 @@ export default function LabelComponent({
             onPressedChange={handleToggle}
             variant="outline"
           >
-            반복
+            {isLoopToggleOn ? '전체영상' : '부분반복'}
             {/* <ReloadIcon className="h-4 w-4" /> */}
           </Toggle>
         </div>
         <Input
-          className="mb-4"
+          className="mb-1"
           id="video-label"
           value={inputLabeledText}
           onChange={handleInputLabeledTextChange}
           placeholder="위 대사에 대한 발화자의 어조를 최대한 잘 드러낼 수 있는 구두점을 추가하여 텍스트를 변형하고 표현해 주세요"
         />
+        <div className='mb-3 flex justify-center'>
+          <span className='text-xs text-blue-500'>(부분반복 버튼을 누른 이후 반복되는 영상이 라벨링을 해야 하는 구간입니다. 전체 영상을 시청한 이후 부분 반복을 하며 해당 구간에 대한 라벨링을 진행해주세요)</span>
+        </div>
         <div className="flex justify-end gap-2">
           <Button disabled={currentVideoIndex === 0} onClick={handlePrev}>
             이전
