@@ -27,22 +27,26 @@ const signInWithEmail = async (formData: FormData) => {
     const setCookieHeader = response.headers.get('set-cookie');
     if (setCookieHeader) {
       const cookieParts = setCookieHeader.split(';');
-      const cookieName = cookieParts[0].split('=')[0].trim();
-      const cookieValue = cookieParts[0].split('=')[1].trim();
-      const cookieOptions: Record<string, string> = {}; // QUESTION: Record 타입?
+      const [cookieNameValue, ...cookieOptions] = cookieParts;
+      const [cookieName, cookieValue] = cookieNameValue.split('=').map(part => part.trim());
 
-      for (let i = 1; i < cookieParts.length; i++) {
-        const [key, value] = cookieParts[i].split('=');
-        cookieOptions[key.trim()] = value ? value.trim() : '';
+      const cookieOptionsObj: Record<string, string> = {
+        name: cookieName,
+        value: cookieValue
+      };
+
+      for (const option of cookieOptions) {
+        const [key, value] = option.split('=');
+        cookieOptionsObj[key.trim()] = value ? value.trim() : '';
       }
 
       cookies().set({
-        name: cookieName,
-        value: cookieValue,
-        httpOnly: Object.prototype.hasOwnProperty.call(cookieOptions, 'HttpOnly'),
+        name: cookieOptionsObj['name'],
+        value: cookieOptionsObj['value'],
+        httpOnly: Object.prototype.hasOwnProperty.call(cookieOptionsObj, 'HttpOnly'),
         secure: process.env.NODE_ENV === 'production',
-        maxAge: parseInt(cookieOptions['Max-Age']),
-        path: cookieOptions['Path'],
+        maxAge: parseInt(cookieOptionsObj['Max-Age']),
+        path: cookieOptionsObj['Path'],
       });
       return redirect('/label');
     }
